@@ -23,6 +23,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -78,8 +79,11 @@ func main() {
 }
 
 func printStats(s gocyclo.Stats) {
+	stdout := bufio.NewWriter(os.Stdout)
+	defer stdout.Flush()
+
 	for _, stat := range s {
-		fmt.Println(stat)
+		fmt.Fprintln(stdout, stat)
 	}
 }
 
