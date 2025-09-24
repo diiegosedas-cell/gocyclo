@@ -7,7 +7,7 @@ package gocyclo
 import (
 	"fmt"
 	"go/token"
-	"sort"
+	"slices"
 )
 
 // Stat holds the cyclomatic complexity of a function, along with its package
@@ -50,22 +50,17 @@ func (s Stats) TotalComplexity() uint64 {
 // not limit the result. If 'over' is <= 0 it does not limit the result either,
 // because a function has a base cyclomatic complexity of at least 1.
 func (s Stats) SortAndFilter(top, over int) Stats {
-	sort.Stable(byComplexityDesc(s))
-	for i, stat := range s {
-		if i == top {
-			return s[:i]
+	slices.SortStableFunc(s, func(a, b Stat) int {
+		if a.Complexity >= b.Complexity {
+			return -1
 		}
-		if stat.Complexity <= over {
+		return 1
+	})
+
+	for i, stat := range s {
+		if i == top || stat.Complexity <= over {
 			return s[:i]
 		}
 	}
 	return s
-}
-
-type byComplexityDesc Stats
-
-func (s byComplexityDesc) Len() int      { return len(s) }
-func (s byComplexityDesc) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s byComplexityDesc) Less(i, j int) bool {
-	return s[i].Complexity >= s[j].Complexity
 }
