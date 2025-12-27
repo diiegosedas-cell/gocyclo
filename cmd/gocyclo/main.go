@@ -23,6 +23,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -89,8 +90,11 @@ func regex(expr string) *regexp.Regexp {
 }
 
 func printStats(s gocyclo.Stats) {
+	stdout := bufio.NewWriter(os.Stdout)
+	defer stdout.Flush()
+
 	for _, stat := range s {
-		fmt.Println(stat)
+		fmt.Fprintln(stdout, stat)
 	}
 }
 
